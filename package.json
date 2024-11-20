@@ -1,14 +1,15 @@
 {
   "name": "meme-generate",
   "version": "1.0.0",
-  "main": "gallery.js",
+  "description": "Application de génération de mèmes avec Node.js et Express",
+  "main": "server.js", 
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["meme", "generator", "nodejs", "express"],
+  "author": "TELLA Love Tobiloba",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.1"
