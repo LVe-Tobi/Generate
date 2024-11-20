@@ -1,22 +1,27 @@
 const canvas = document.getElementById('memeCanvas');
 const ctx = canvas.getContext('2d');
+
 const imageUpload = document.getElementById('imageUpload');
 const topTextInput = document.getElementById('topText');
 const bottomTextInput = document.getElementById('bottomText');
 const downloadButton = document.getElementById('downloadMeme');
-const shareFacebook = document.getElementById('share-facebook');
-const shareTwitter = document.getElementById('share-twitter');
-let uploadedImage;
+const facebookShareButton = document.getElementById('share-facebook');
+const twitterShareButton = document.getElementById('share-twitter');
+
+let uploadedImage = null;
 
 // Fonction pour dessiner le mème sur le canvas
 function drawMeme() {
     if (!uploadedImage) return;
 
+    // Ajuste la taille du canvas en fonction de l'image
     canvas.width = uploadedImage.width;
     canvas.height = uploadedImage.height;
 
+    // Dessine l'image sur le canvas
     ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
 
+    // Calculer la taille du texte
     const fontSize = Math.floor(canvas.width / 10);
     ctx.font = `${fontSize}px Impact`;
     ctx.fillStyle = 'white';
@@ -24,30 +29,16 @@ function drawMeme() {
     ctx.lineWidth = fontSize / 10;
     ctx.strokeStyle = 'black';
 
-    ctx.fillText(topTextInput.value.toUpperCase(), canvas.width / 2, 50);
-    ctx.strokeText(topTextInput.value.toUpperCase(), canvas.width / 2, 50);
+    // Texte du haut
+    ctx.fillText(topTextInput.value.toUpperCase(), canvas.width / 2, fontSize);
+    ctx.strokeText(topTextInput.value.toUpperCase(), canvas.width / 2, fontSize);
 
-    ctx.fillText(bottomTextInput.value.toUpperCase(), canvas.width / 2, canvas.height - 50);
-    ctx.strokeText(bottomTextInput.value.toUpperCase(), canvas.width / 2, canvas.height - 50);
+    // Texte du bas
+    ctx.fillText(bottomTextInput.value.toUpperCase(), canvas.width / 2, canvas.height - 10);
+    ctx.strokeText(bottomTextInput.value.toUpperCase(), canvas.width / 2, canvas.height - 10);
 }
 
-// Fonction pour obtenir l'URL du mème
-function getMemeImageUrl() {
-    return canvas.toDataURL('image/png');  // Retourne l'URL de l'image du canvas
-}
-
-// Fonction pour mettre à jour les liens de partage
-function updateShareLinks() {
-    const memeImageUrl = getMemeImageUrl();
-
-    // Partage sur Facebook
-    shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(memeImageUrl)}`;
-
-    // Partage sur Twitter
-    shareTwitter.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(memeImageUrl)}&text=${encodeURIComponent('Voici mon mème !')} `;
-}
-
-// Écouteur pour charger l'image
+// Charge l'image sur le canvas lorsqu'un fichier est sélectionné
 imageUpload.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -58,27 +49,36 @@ imageUpload.addEventListener('change', (e) => {
         img.onload = () => {
             uploadedImage = img;
             drawMeme();
-            updateShareLinks();  // Met à jour les liens de partage après avoir chargé l'image
         };
         img.src = reader.result;
     };
     reader.readAsDataURL(file);
 });
 
-// Redessiner le mème lorsque le texte est modifié
-topTextInput.addEventListener('input', () => {
-    drawMeme();
-    updateShareLinks();  // Met à jour les liens de partage lorsque le texte est modifié
-});
-bottomTextInput.addEventListener('input', () => {
-    drawMeme();
-    updateShareLinks();  // Met à jour les liens de partage lorsque le texte est modifié
-});
+// Redessine le mème chaque fois que le texte change
+topTextInput.addEventListener('input', drawMeme);
+bottomTextInput.addEventListener('input', drawMeme);
 
-// Fonction pour télécharger le mème
+// Télécharge le mème
 downloadButton.addEventListener('click', () => {
     const link = document.createElement('a');
     link.download = 'meme.png';
-    link.href = getMemeImageUrl();
+    link.href = canvas.toDataURL('image/png');
     link.click();
+});
+
+// Fonction de partage sur Facebook
+facebookShareButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    const memeUrl = canvas.toDataURL('image/png');
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(memeUrl)}`;
+    window.open(shareUrl, '_blank');
+});
+
+// Fonction de partage sur Twitter
+twitterShareButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    const memeUrl = canvas.toDataURL('image/png');
+    const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(memeUrl)}&text=Regardez ce mème génial!`;
+    window.open(shareUrl, '_blank');
 });
